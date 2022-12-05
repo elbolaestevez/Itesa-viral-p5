@@ -59,8 +59,10 @@ const WalletCard = () => {
   const provider = new ethers.providers.JsonRpcProvider(
     "https://goerli.infura.io/v3/07844f3846764830b55e143f3d6f324d"
   );
+
   const privateKey1 =
     "ae6eb5a105b3557eada011913816e359cf9f792ab8645e557d4a8415f8330f03";
+
   const wallet = new ethers.Wallet(privateKey1, provider);
   const ERC20_ABI = [
     "function balanceOf(address) view returns (uint)",
