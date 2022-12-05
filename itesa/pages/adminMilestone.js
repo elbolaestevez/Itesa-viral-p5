@@ -45,7 +45,7 @@ import Persistence from "../components/Persistence";
 import React, { useState, useEffect } from "react";
 import handleInput from "../reactHooks/handleInput";
 
-export default function adminMilestone() {
+export default function AdminMilestone() {
   const [milestones, setMilestones] = useState([]);
   const [edit, setEdit] = useState({});
   const [add, setAdd] = useState(false);

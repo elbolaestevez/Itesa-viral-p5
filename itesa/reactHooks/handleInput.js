@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function handleInput() {
+function HandleInput() {
   const [value, setValue] = useState("");
 
   function onChange(event) {
@@ -10,4 +10,4 @@ function handleInput() {
   return { value, onChange, setValue };
 }
 
-export default handleInput;
+export default HandleInput;

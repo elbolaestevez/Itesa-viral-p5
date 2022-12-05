@@ -3,7 +3,7 @@ const User = db.User;
 
 const Milestone = db.Milestone;
 
-export default async function adminMilestones(req, res) {
+export default async function AdminMilestones(req, res) {
   const { method } = req;
   const { name, desc, tokenAmount, id } = req.body;
   switch (method) {
