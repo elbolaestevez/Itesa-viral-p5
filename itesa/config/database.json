@@ -1,23 +1,23 @@
 {
   "development": {
-    "username": "bautista",
-    "password": "crih6QmQMynZuBe3iCKP91u2V9gsNCt7",
-    "database": "get_viral",
-    "host": "dpg-ce735sp4rebdt3csnfug-a",
+    "username": "postgres",
+    "password": "1Qweasd!1Qweasd!1Qweasd",
+    "database": "postgres",
+    "host": "db.cjxvfeykjmieuurppgdo.supabase.co",
     "dialect": "postgres"
   },
   "test": {
-    "username": "bautista",
-    "password": "crih6QmQMynZuBe3iCKP91u2V9gsNCt7",
-    "database": "get_viral",
-    "host": "dpg-ce735sp4rebdt3csnfug-a",
+    "username": "postgres",
+    "password": "1Qweasd!1Qweasd!1Qweasd",
+    "database": "postgres",
+    "host": "db.cjxvfeykjmieuurppgdo.supabase.co",
     "dialect": "postgres"
   },
   "production": {
-    "username": "bautista",
-    "password": "crih6QmQMynZuBe3iCKP91u2V9gsNCt7",
-    "database": "get_viral",
-    "host": "dpg-ce735sp4rebdt3csnfug-a",
+    "username": "postgres",
+    "password": "1Qweasd!1Qweasd!1Qweasd",
+    "database": "postgres",
+    "host": "db.cjxvfeykjmieuurppgdo.supabase.co",
     "dialect": "postgres"
   }
 }
