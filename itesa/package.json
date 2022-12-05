@@ -4,10 +4,6 @@
   "private": true,
   "author": "",
   "main": "_app.js",
-  "engines": {
-    "node": "16.17.0",
-    "npm": "8.15.0"
-  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
