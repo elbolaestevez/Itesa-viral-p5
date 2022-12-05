@@ -2,6 +2,12 @@
   "name": "getviral",
   "version": "0.1.0",
   "private": true,
+  "author": "",
+  "main": "_app.js",
+  "engines": {
+    "node": "16.17.0",
+    "npm": "8.15.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,7 +15,7 @@
     "lint": "next lint",
     "migrate": "sequelize db:migrate",
     "seed": "sequelize-cli db:seed:all",
-    "users":"node db/seeders/users/seeder.js"
+    "users": "node db/seeders/users/seeder.js"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.0.13",
