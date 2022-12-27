@@ -1,23 +1,23 @@
 {
   "development": {
-    "username": "postgres",
-    "password": "1234",
-    "database": "get_viral",
-    "host": "127.0.0.1",
+    "username": "kipgffct",
+    "password": "v6r8sN7LKnBIaRymWFa0_hR84ycS8iTp",
+    "database": "kipgffct",
+    "host": "hansken.db.elephantsql.com",
     "dialect": "postgres"
   },
   "test": {
-    "username": "postgres",
-    "password": "1234",
-    "database": "get_viral",
-    "host": "127.0.0.1",
+    "username": "kipgffct",
+    "password": "v6r8sN7LKnBIaRymWFa0_hR84ycS8iTp",
+    "database": "kipgffct",
+    "host": "hansken.db.elephantsql.com",
     "dialect": "postgres"
   },
   "production": {
-    "username": "postgres",
-    "password": "1234",
-    "database": "get_viral",
-    "host": "127.0.0.1",
+    "username": "kipgffct",
+    "password": "v6r8sN7LKnBIaRymWFa0_hR84ycS8iTp",
+    "database": "kipgffct",
+    "host": "hansken.db.elephantsql.com",
     "dialect": "postgres"
   }
 }

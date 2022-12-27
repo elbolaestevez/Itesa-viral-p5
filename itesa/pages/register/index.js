@@ -100,10 +100,7 @@ export default function Registro() {
         referring: referedCode.value,
       };
       const created = await axios
-        .post(
-          "https://itesa-viral-p5-git-main-elbolaestevez.vercel.app/register/api/newUser",
-          newUser
-        )
+        .post("/api/newUser", newUser)
         .then(() => router.push("/login"))
         .catch((err) =>
           Swal.fire({
