@@ -36,6 +36,7 @@
     "jsonwebtoken": "^8.5.1",
     "next": "13.0.4",
     "next-redux-wrapper": "^8.0.0",
+    "nextjs-cors": "^2.1.2",
     "nodemailer": "^6.8.0",
     "nodemailer-express-handlebars": "^5.0.0",
     "pg": "^8.8.0",
