@@ -1,21 +1,27 @@
-'use strict';
+"use strict";
 
-const fs = require('fs');
-const path = require('path');
-const {Sequelize} = require('sequelize');
-const process = require('process');
+const pg = require("pg");
+const fs = require("fs");
+const path = require("path");
+const { Sequelize } = require("sequelize");
+const process = require("process");
 const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || 'development';
-const config = require(__dirname + '/../../config/database.json')[env];
+const env = process.env.NODE_ENV || "development";
+const config = require(__dirname + "/../../config/database.json")[env];
 const db = {};
 
 let sequelize;
 if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
+  sequelize = new Sequelize(process.env[config.use_env_variable], {
+    ...config,
+    dialectModule: pg,
+  });
 } else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
+  sequelize = new Sequelize(config.database, config.username, config.password, {
+    ...config,
+    dialectModule: pg,
+  });
 }
-
 
 // ELIMINANDO TODO ESTO LAS RUTAS DESPUÉS ANDAN. HAY QUE PROBAR SI FUNCIONAN LAS CREACIONES DE MODELOS Y LAS MIGRACIONES
 // fs
@@ -34,17 +40,15 @@ if (config.use_env_variable) {
 //   }
 // });
 
-
 //Agregamos los modelos a la DB
-const User=require("./user")
+const User = require("./user");
 //const Invitation=require("./invitation")
-const Award=require("./award")
-const Milestone=require("./milestone")
+const Award = require("./award");
+const Milestone = require("./milestone");
 
-
-db.User=User(sequelize,Sequelize)
-db.Award=Award(sequelize,Sequelize)
-db.Milestone=Milestone(sequelize,Sequelize)
+db.User = User(sequelize, Sequelize);
+db.Award = Award(sequelize, Sequelize);
+db.Milestone = Milestone(sequelize, Sequelize);
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
