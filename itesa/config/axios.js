@@ -1,8 +1,6 @@
-import axios from "axios"
-axios.defaults.baseURL="http://localhost:3000/api"
+import axios from "axios";
+axios.defaults.baseURL = process.env.NEXT_PUBLIC_PUBLIC_URL + "/api";
 
-const back=axios.create({
-    baseURL:"http://localhost:3000/api"
-})
+const back = axios.create();
 
 export default back;

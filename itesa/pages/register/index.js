@@ -14,7 +14,7 @@ import {
 
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import handleInput from "../../reactHooks/handleInput";
-import axios from "axios";
+import axios from "../../config/axios";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
@@ -100,7 +100,7 @@ export default function Registro() {
         referring: referedCode.value,
       };
       const created = await axios
-        .post("/api/newUser", newUser)
+        .post("/newUser", newUser)
         .then(() => router.push("/login"))
         .catch((err) =>
           Swal.fire({
