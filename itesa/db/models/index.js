@@ -46,6 +46,7 @@ const Milestone = require("./milestone");
 db.User = User(sequelize, Sequelize);
 db.Award = Award(sequelize, Sequelize);
 db.Milestone = Milestone(sequelize, Sequelize);
+db.Milestone = Milestone(sequelize, Sequelize);
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
