@@ -110,16 +110,19 @@ var newUsers = [
   // {nick_name:"referFranco39",email:"referFranco39@mail.com",password:"1234",referring:"viral.referAle4"},
 ];
 
-var config = {
-  method: "post",
-  url: "http://localhost:3000/api/newUser",
-  headers: {
-    "Content-Type": "application/json",
-  },
-};
+// var config = {
+//   method: "post",
+//   url: "http://localhost:3000/api/newUser",
+//   headers: {
+//     "Content-Type": "application/json",
+//   },
+// };
 
 const registerPromises = newUsers.map(async (element) => {
-  return await seeder.post("http://localhost:3000/api/newUser", element);
+  return await seeder.post(
+    "https://itesa-viral-p5.vercel.app/api/newUser/",
+    element
+  );
 });
 
 const registros = Promise.all(registerPromises);
