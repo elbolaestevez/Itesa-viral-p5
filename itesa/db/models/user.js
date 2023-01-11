@@ -66,7 +66,7 @@ module.exports = (sequelize, DataTypes) => {
   User.addHook("beforeUpdate", (user) => {
     const token = jwt.sign(user.address, SECRET, {});
     user.address = token;
-    return user
+    return user;
   });
 
   return User;

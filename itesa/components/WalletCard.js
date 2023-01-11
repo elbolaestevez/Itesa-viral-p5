@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ethers } from "ethers";
+import { ethers, BigNumber } from "ethers";
 import Swal from "sweetalert2";
 import {
   Box,
@@ -26,8 +26,12 @@ import {
   Divider,
   Highlight,
   Center,
+  Stack,
+  InputGroup,
+  InputRightElement,
+  InputLeftElement,
 } from "@chakra-ui/react";
-
+import { CheckIcon } from "@chakra-ui/react";
 import Link from "next/link";
 import { logout } from "../store/reducers/userSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -36,9 +40,9 @@ import axios from "../config/axios";
 import Persistence from "./Persistence";
 import Head from "next/head";
 import Reference from "./Reference";
-
 import next from "next";
 import Navbar from "./Navbar";
+import handleInput from "../reactHooks/handleInput";
 
 const WalletCard = () => {
   const [isLargerThan1280] = useMediaQuery("(min-width: 800px)");
@@ -53,16 +57,15 @@ const WalletCard = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
   const [ranking, setRanking] = useState(0);
+  const [rankingCurrent, setRankingCurrent] = useState(0);
+  const [totalAwards, setTotalAwards] = useState({});
   const [currentAwards, setCurrentAwards] = useState({});
-  const [lastMilestone, setLastMilestone, getLastMilestone] = useState({});
   const [nextMilestone, setNextMilestone, getNextMilestone] = useState({});
   const provider = new ethers.providers.JsonRpcProvider(
     "https://goerli.infura.io/v3/07844f3846764830b55e143f3d6f324d"
   );
-
   const privateKey1 =
     "ae6eb5a105b3557eada011913816e359cf9f792ab8645e557d4a8415f8330f03";
-
   const wallet = new ethers.Wallet(privateKey1, provider);
   const ERC20_ABI = [
     "function balanceOf(address) view returns (uint)",
@@ -70,6 +73,8 @@ const WalletCard = () => {
   ];
   const address = "0x319d484fA709D449dc60a5C916a1d229E589aB59";
   const contract = new ethers.Contract(address, ERC20_ABI, provider);
+  const buyAmount = handleInput();
+  const [compra, setCompra] = useState({});
 
   const LOGOUT = () => {
     localStorage.setItem("VT", "");
@@ -86,28 +91,42 @@ const WalletCard = () => {
         //Consulta de Tokens por recuperar
         const tokens = await axios.post("/redeem", { user: user.id });
         settokentoredeem(tokens.data);
-        //Consulta de posición en ranking
-        const usersRanking = await axios.get("/ranking");
-        const rankingPos = await usersRanking.data.findIndex(
+
+        //Consulta Ranking Histórico y de Ranking Actual
+        const { usersRanking, usersRankingCurrent } = await axios
+          .get("/ranking")
+          .then((result) => result.data);
+        const rankingPos = await usersRanking.findIndex(
           (element) => element.referringId === user.id
         );
         setRanking(rankingPos + 1);
-        // const tempPoints=usersRanking[rankingPos].awards
-        // setPoints(tempPoints)
-
-        const tempRanking = await usersRanking.data.find(
+        const tempRanking = await usersRanking.find(
           (element) => element.referringId === user.id
         );
-        setCurrentAwards(tempRanking);
+        setTotalAwards(tempRanking);
+
+        //Seteo de estados de la Campaña Actual
+        if (usersRankingCurrent.length > 0) {
+          const rankingPosCurrent = await usersRankingCurrent.findIndex(
+            (element) => element.referringId === user.id
+          );
+          setRankingCurrent(rankingPosCurrent + 1);
+          const currentRanking = await usersRankingCurrent.find(
+            (element) => element.referringId === user.id
+          );
+          setCurrentAwards(currentRanking);
+        } else {
+          setRankingCurrent("No hay Ranking Todavía");
+          setCurrentAwards({ awards: 0 });
+        }
 
         //Consulta de próximo Milestone
         const milestones = await axios
           .post("/userMilestones", { user: user.id })
-          .then((result) => result.data);
-
-        setLastMilestone(milestones.lastMilestone);
-        setNextMilestone(milestones.nextMilestone);
-        //Determinar cuántos referidos faltan para próximo milestone
+          .then((result) => {
+            result = result.data;
+            setNextMilestone(result.nextMilestone);
+          });
       }
     };
     getStatus();
@@ -184,20 +203,14 @@ const WalletCard = () => {
         setErrorMessage(error.message);
       }
     };
-    // const chainChangedHandler = () => {
-    //   // reload the page to avoid any errors with chain change mid use of application
-    //   window.location.reload();
-    // };
 
     // listen for account changes
-    // if (window.ethereum && window.ethereum.isMetaMask) {
-    //   window.ethereum.on("accountsChanged", accountChangedHandler);
-    //   window.ethereum.on("chainChanged", chainChangedHandler);
-    // }
-  }, [user, userBalance, defaultAccount, tokentoredeem]);
+    if (window.ethereum && window.ethereum.isMetaMask) {
+      window.ethereum.on("accountsChanged", accountChangedHandler);
+    }
+  }, [user, userBalance, defaultAccount, tokentoredeem, compra]);
 
   const handleTokens = async () => {
-    console.log("TOKENS");
     const contractWithWallet = contract.connect(wallet);
     if (tokentoredeem) {
       setLoading(true);
@@ -206,7 +219,7 @@ const WalletCard = () => {
         tokentoredeem
       );
       await tx.wait();
-      console.log(tx);
+
       setLoading(false);
       const balanceOfReceiver = await contract.balanceOf(defaultAccount);
       setUserBalance(ethers.utils.formatEther(balanceOfReceiver));
@@ -224,46 +237,127 @@ const WalletCard = () => {
   };
 
   const handleUpdateAwards = async () => {
-    const tokens = await axios.post("/updateAwards", { user: user.id });
+    const tokens = await axios.post("/updateAwards", {
+      user: user.id,
+      admin: user.admin,
+    });
     settokentoredeem(tokens.data);
-    //Consulta de posición en ranking
-    const usersRanking = await axios.get("/ranking");
-    const rankingPos = await usersRanking.data.findIndex(
+
+    //Consulta Ranking Histórico y de Ranking Actual
+    const { usersRanking, usersRankingCurrent } = await axios
+      .get("/ranking")
+      .then((result) => result.data);
+    const rankingPos = await usersRanking.findIndex(
       (element) => element.referringId === user.id
     );
     setRanking(rankingPos + 1);
     // const tempPoints=usersRanking[rankingPos].awards
     // setPoints(tempPoints)
-
-    const tempRanking = await usersRanking.data.find(
+    const tempRanking = await usersRanking.find(
       (element) => element.referringId === user.id
     );
-    setCurrentAwards(tempRanking);
+    setTotalAwards(tempRanking);
+
+    //Seteo de estados de la Campaña Actual
+    if (usersRankingCurrent.length > 0) {
+      const rankingPosCurrent = await usersRankingCurrent.findIndex(
+        (element) => element.referringId === user.id
+      );
+      setRankingCurrent(rankingPosCurrent + 1);
+      const currentRanking = await usersRankingCurrent.find(
+        (element) => element.referringId === user.id
+      );
+      setCurrentAwards(currentRanking);
+    } else {
+      setRankingCurrent("No hay Ranking Todavía");
+      setCurrentAwards({ awards: 0 });
+    }
 
     //Consulta de próximo Milestone
     const milestones = await axios
       .post("/userMilestones", { user: user.id })
-      .then((result) => result.data);
+      .then((result) => {
+        result = result.data;
+        setNextMilestone(result.nextMilestone);
+      });
+  };
 
-    setLastMilestone(milestones.lastMilestone);
-    setNextMilestone(milestones.nextMilestone);
-    //Determinar cuántos referidos faltan para próximo milestone
+  // TRANSACTION:
+  const handleBuy = async () => {
+    const inputToken = buyAmount.value;
+
+    const providerAccount = "0x5D8CCC0e151Cb27CFc75124D5472df32583c8EC4";
+    const providerBalanceToken = await contract.balanceOf(providerAccount);
+    const provBalanceValue = ethers.utils.formatEther(providerBalanceToken);
+    const contractWithWallet = contract.connect(wallet);
+
+    if (inputToken <= 0) {
+      Swal.fire({
+        icon: "info",
+        title: "Porfavor ingrese un valor mayor a cero",
+      });
+    } else {
+      if (provBalanceValue >= inputToken) {
+        const amount = ethers.utils.parseEther(buyAmount.value.toString());
+
+        if (defaultAccount) {
+          setLoading(true);
+          try {
+            let params2 = {
+              from: defaultAccount,
+              to: providerAccount,
+              value: amount._hex,
+              chainId: "0x5",
+            };
+            const transaction = await ethereum.request({
+              method: "eth_sendTransaction",
+              params: [params2],
+            });
+            if (transaction) {
+              const tx = await contractWithWallet.transfer(
+                defaultAccount,
+                params2.value
+              );
+              await tx.wait();
+
+              const result = await contract.balanceOf(defaultAccount);
+              setUserBalance(ethers.utils.formatEther(result));
+
+              Swal.fire({
+                icon: "success",
+                title: "La compra se ha realizado con éxito!",
+              });
+            }
+            buyAmount.setValue("");
+            setLoading(false);
+          } catch (error) {
+            setLoading(false);
+            console.log(error);
+            Swal.fire({
+              icon: "info",
+              title: "Se ha cancelado la transacción",
+            });
+          }
+        } else {
+          Swal.fire({
+            icon: "info",
+            title: "No hay ninguna billetera conectada",
+            html: "<b> Por favor conectar billetera</b>",
+          });
+        }
+      } else {
+        Swal.fire({
+          icon: "info",
+          title:
+            "Lo lamentamos, en este momento no se pueden realizar transacciones",
+          html: "<b> Intente mas tarde, gracias</b>",
+        });
+      }
+    }
   };
 
   return (
     <>
-      {/* <div className="walletCard">
-        <h4> {"Connection to MetaMask using window.ethereum methods"} </h4>
-
-        <div className="accountDisplay">
-          <h3>Address: {defaultAccount}</h3>
-        </div>
-        <div className="balanceDisplay">
-          <h3>Balance: {userBalance}</h3>
-        </div>
-        {errorMessage}
-      </div> */}
-
       {isLargerThan1280 ? (
         <div>
           <div>
@@ -296,7 +390,7 @@ const WalletCard = () => {
         borderColor={["", "gray.300"]}
         borderRadius={10}
       >
-        <Flex mb={20}>
+        <Flex>
           <Box>
             <Link href="/logged/homeuser">
               <Image
@@ -308,13 +402,8 @@ const WalletCard = () => {
             </Link>
           </Box>
         </Flex>
-        <VStack
-          spacing={4}
-          align="flex-start"
-          marginRight={"auto"}
-          marginLeft={"auto"}
-        >
-          <Box w={"30px"} h={"30px"} alignSelf={"center"}>
+        <VStack spacing={1} marginRight={"auto"} marginLeft={"auto"}>
+          <Box w={"30px"} h={"30px"} mb={8} alignSelf={"center"}>
             {loading ? (
               <Spinner
                 className="loading"
@@ -345,7 +434,6 @@ const WalletCard = () => {
             padding={"3%"}
             marginRight={"auto"}
             marginLeft={"auto"}
-            alignSelf={"center"}
           >
             <Stat color="white">
               <VStack
@@ -355,46 +443,90 @@ const WalletCard = () => {
               >
                 <StatNumber> TukiTokens: {userBalance}</StatNumber>
                 <Text fontSize={"sm"}>
-                  {" "}
-                  ◉ Posicion en el ranking: {ranking}
+                  ◉ Posicion en el ranking Histórico: {ranking}
                 </Text>
-                <Text fontSize={"sm"}> ◉ Puntos: {currentAwards.awards}</Text>
-                {nextMilestone.id ? (
-                  <Text fontSize={"sm"}>
-                    ◉ Te falta(n){" "}
-                    {nextMilestone.quantityCondition - currentAwards.awards}{" "}
-                    punto(s) para el próximo Milestone!!
-                  </Text>
-                ) : (
-                  <Text fontSize={"sm"}>
-                    Has conseguido todos los Milestones!!
-                  </Text>
-                )}
                 <Text fontSize={"sm"}>
-                  ◉ Proximo milestone: {nextMilestone.name}
+                  ◉ Puntos Totales: {totalAwards.awards}
                 </Text>
+
+                {nextMilestone.id ? (
+                  <>
+                    <Text fontSize={"sm"}>
+                      {" "}
+                      ◉ Posicion en el ranking en esta Campaña: {rankingCurrent}
+                    </Text>
+                    <Text fontSize={"sm"}>
+                      {" "}
+                      ◉ Puntos Para esta Campaña: {currentAwards.awards}
+                    </Text>
+                    {nextMilestone.quantityCondition ? (
+                      <Text fontSize={"sm"}>
+                        ◉ Te falta(n){" "}
+                        {nextMilestone.quantityCondition - currentAwards.awards}{" "}
+                        punto(s) para el próximo Milestone!!
+                      </Text>
+                    ) : (
+                      ""
+                    )}
+                    <Text fontSize={"sm"}>
+                      ◉ Proximo milestone: {nextMilestone.name}
+                    </Text>
+                  </>
+                ) : (
+                  <StatNumber> No hay campaña vigente </StatNumber>
+                )}
+
                 <Text fontSize={"sm"}>
                   ◉ Token por reclamar {tokentoredeem}
                 </Text>
               </VStack>
             </Stat>
-            <Center>
-              <HStack>
-                {connButtonText === "Billetera conectada" &&
-                tokentoredeem > 0 ? (
-                  <Button justifySelf={"center"} onClick={handleTokens}>
-                    Reclamar Tokens
-                  </Button>
-                ) : (
-                  ""
-                )}
-                <Flex justifyContent={"center"}>
-                  <Button onClick={handleUpdateAwards}>Actualizar</Button>
-                </Flex>
-              </HStack>
-            </Center>
+
+            <HStack>
+              {connButtonText === "Billetera conectada" && tokentoredeem > 0 ? (
+                <Button justifySelf={"center"} onClick={handleTokens}>
+                  Reclamar Tokens
+                </Button>
+              ) : (
+                ""
+              )}
+              <Flex justifyContent={"center"}>
+                <Button onClick={handleUpdateAwards}>Actualizar</Button>
+              </Flex>
+            </HStack>
           </Box>
           <Reference />
+          <Box>
+            <FormControl>
+              <FormLabel color="white" textAlign="center">
+                {" "}
+                Comprar Token
+              </FormLabel>{" "}
+              <HStack>
+                <Input
+                  type={"number"}
+                  _focusVisible={"white"}
+                  rounded="2xl"
+                  variant="filled"
+                  {...buyAmount}
+                  placeholder="VT"
+                />
+
+                <Button
+                  colorScheme=""
+                  variant="solid"
+                  w={["full", "auto"]}
+                  onClick={handleBuy}
+                >
+                  {" "}
+                  Comprar{" "}
+                </Button>
+              </HStack>
+              <Text color="white" mt={2} ml={2}>
+                1 VT ≈ 1 GoerliETH
+              </Text>
+            </FormControl>
+          </Box>
         </VStack>
         <Navbar />
       </Box>
