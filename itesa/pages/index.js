@@ -15,19 +15,18 @@ export default function Home() {
   const password = handleInput();
   const dispatch = useDispatch();
   const [status, setStatus] = useState("");
-  const router=useRouter()
+  const router = useRouter();
   const cookieCutter = require("cookie-cutter");
-
 
   /* useEffect(() => {
     axios.get("/me").then((user) => dispatch(login(user.data)));
   }, []);
  */
 
-  useEffect(()=>{
-    router.push("/home")
-  },[])
-  
+  useEffect(() => {
+    router.push("/home");
+  }, []);
+
   // const handleSubmit = async (e) => {
   //   e.preventDefault();
   //   const newUser = {
@@ -51,7 +50,6 @@ export default function Home() {
 
   // const secreto = handleInput();
 
-
   // const LOGOUT = () => {
   //   axios.post("/logout");
   //   dispatch(logout());
@@ -68,7 +66,8 @@ export default function Home() {
   //   else console.log("hay algo mal");
   // };
 
-  return (<></>
+  return (
+    <></>
     // <div className={styles.container}>
     //   <h1>PRUEBA REGISTRO</h1>
     //   <form onSubmit={handleSubmit}>

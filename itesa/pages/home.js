@@ -21,11 +21,11 @@ import { useEffect } from "react";
 import axios from "axios";
 
 const Index = () => {
-  useEffect(() => {
-    async () => {
-      await axios.post("/logout");
-    };
-  }, []);
+  // useEffect(() => {
+  //   async () => {
+  //     await axios.post("/logout");
+  //   };
+  // }, []);
   return (
     <Grid
       minH={"100vh"}
